@@ -1,0 +1,87 @@
+(整理自http://www.stepanreznikov.com/js-shortcuts/，内有原JS，和英文使用说明）
+使用前需要引入插件的JS，如果版本Jquery版本过低，可能会报错，需要引入broswer.js（这个JS可以解决大部分引用插件时因jquery版本过低导致的$browser问题），注意引用顺序，先引用broswer.js再引用插件的JS再引用对应模块的JS。
+新增一个屏蔽键（可以是组合键）
+$.Shortcuts.add({
+    type: 'down',
+    mask: 'Ctrl+A',
+    handler: function() {
+        debug('Ctrl+A');
+    }
+});
+
+启用插件的方法 
+
+$.Shortcuts.start();
+
+添加一个屏蔽键到另外的list里，并且给list命名。 handler为屏蔽之后调用的方法。
+
+$.Shortcuts.add({
+    type: 'hold',
+    mask: 'Shift+Up',
+    handler: function() {
+        debug('Shift+Up');
+    },
+    list: 'another'
+});
+
+启用指定的list
+
+$.Shortcuts.start('another');
+
+Remove a shortcut:
+
+$.Shortcuts.remove({
+    type: 'hold',
+    mask: 'Shift+Up',
+    list: 'another'
+});
+
+停止使用插件
+
+$.Shortcuts.stop();
+
+type的三种类型，指定需要屏蔽的按键类型
+
+    down — 按下键.
+    up — 松开键.
+    hold — 长按.
+
+支持屏蔽的键
+
+    系统键: Ctrl, Shift, Alt
+    数字: 0—9
+    字母: A—Z (不区分大小写)
+    功能键: Backspace, Tab, Enter, Pause, CapsLock, Esc, Space, PageUp, PageDown, End, Home, Left, Up, Right, Down, Insert, Delete, F1—F12, ? (问号), 
+	Minus(减号), Plus(加号)
+
+一次性将不同的屏蔽键放到不同的list里:
+
+$.Shortcuts.add({
+    type: 'hold',
+    mask: 'Shift+Up,Shift+Down',
+    handler: function() {
+        doSomething();
+    },
+    list: 'first,second'
+});
+
+定义之后可以直接.start()启用
+$.Shortcuts.add({
+    type: 'down',
+    mask: 'Ctrl+A',
+    handler: function() {
+        debug('Ctrl+A');
+    }
+}).start();
+
+可以设置输入文本时是否屏蔽
+
+$.Shortcuts.add({
+    type: 'down',
+    mask: 'Ctrl+S',
+    enableInInput: true,
+    handler: function() {
+        debug('Ctrl+S');
+    }
+});
+

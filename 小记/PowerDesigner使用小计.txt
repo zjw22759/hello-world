@@ -1,0 +1,8 @@
+1. 设置 code 和 name 不同步变更：Tools -> General Options -> Dialog -> 去除勾选 Name to Code mirroring 。
+2. 设置 name 和 code 显示大写：Tools -> Model Options -> Naming Convertion -> Name 和 Code 标签下的 Character case 统一选择 Uppercase 。
+2. 设置输出脚本为大写：Database -> Edit Current DBMS -> General -> Script -> Sql -> Format -> UpperCaseOnly -> 选择 Yes 。
+3. 设置输出脚本中表名、字段名等不带双引号：Database -> Edit Current DBMS -> General -> Script -> Sql -> Format -> CaseSensitivityUsingQuote -> 选择 No 。
+4. 数据库表等设计完成之后，运行脚本 name2comment.vbs，默认将 name 作为 注释 comment 输出： 
+	Tools -> Execute Commands -> Edit/Run Script -> 打开name2comment.vbs -> Run 。
+5.在指定表的table Proerties窗口的options,在左侧的窗口中依次找到Physial properties→tablespace将该项选入右侧窗口中，然后右侧窗口中选中tablespace属性，在下面的编辑窗口中修改该表对应的表空间即可!!
+6.设置columns中的显示列通过漏斗加笔的图标设置

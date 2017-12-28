@@ -1,0 +1,400 @@
+HTML5 WebSockets是HTML5中最强大的通信功能，它定义了一个全双工通信信道，仅通过Web上的一个Socket即可进行通信。
+
+目前实时Web应用的实现方式，大部分是围绕轮询和其他服务器端推送技术展开的，Comet、轮询、长轮询、流（streaming）解决方案，所有这些提供实时数据的方式包含有大量额外的、不必要的报头数据，会造成传输延迟。最重要的是为了在半双工HTTP的基础上模拟全双工通信，目前的许多解决方案都是使用了两个连接：一个用于下行数据流，另一个用于上行数据流。这两个连接的保持和协作也会造成大量的资源消耗，并增加了复杂度。
+
+WebSockets就是解决以上问题的方案。为了建立WebSocket通信，客户端和服务器在初始握手时，将HTTP协议升级到WebSocket协议。
+
+ 
+
+现在WebSocket服务器有很多，还在开发中的更多。有一下几种：
+
+    Kaazing WebSocket Gateway：一种基于Java的WebSocket网关。
+    mod_pywebsocket：一种基于Python的Apache HTTP服务器扩展。
+    Netty：一种包含WebSocket的Java框架。
+    node.js：一种驱动多个WebSocket服务器的服务器端JavaScript框架。
+
+对于非原生支持WebSocket的浏览器来说，Kazzing的WebSocket网关包含了完整的客户端浏览器WebSocket模拟支持。
+
+二、HTML5 WebSockets API
+
+1、浏览器支持情况检测
+检测浏览器支持情况代码  收藏代码
+
+    function loadDemo() {  
+        if (window.WebSocket) {  
+            //supported  
+        } else {  
+            // not supported  
+        }  
+    }  
+
+2、WebSocket对象的创建和服务器连接
+
+要连接通信端点，只需要创建一个新的WebSocket实例，并提供希望连接的对端URL。ws://和wss://前缀分别表示WebSocket连接和安全的WebSocket连接。
+Js代码  收藏代码
+
+    url = "ws://localhost:8080/echo";  
+    w = new WebSocket(url);  
+
+ 
+
+建立WebSocket连接时，可以列出Web应用能够使用的协议。WebSocket构造函数的第二个参数既可以是字符串，也可以是字符串组。
+Js代码  收藏代码
+
+    w = new WebSocket(url, ["proto1", "proto2"]);  
+
+假设proto1和proto2是定义明确、可能已注册且标准化的协议名称，它们能够同时为客户端和服务器端所理解。服务器会从列表中选择首选协议。
+Js代码  收藏代码
+
+    onopen = function(e) {  
+        //确定服务器选择的协议  
+        log(e.target.protocol);  
+    }  
+
+ 
+
+3、添加事件监听器
+
+WebSocket编程遵循异步编程模型；打开socket后，只需等待事件发生，而不需要主动向服务器轮询，所以需要在WebSocket对象中添加回调函数来监听事件。
+
+WebSocket对象有三个事件：open、close和message。
+Js代码  收藏代码
+
+    w.onopen = function() {  
+        log("open");  
+        w.send("send message");  
+    }  
+    w.onmessage = function(e) {  
+        log(e.data);  
+    }  
+    w.onclose = function(e) {  
+        log("closed");  
+    }  
+    w.onerror = function(e) {  
+        log("error");  
+    }  
+
+ 
+
+4、发送消息
+
+当socket处于打开状态（即onopen之后，onclose之前），可以用send方法来发送消息。消息发送完，可以调用close方法来终止连接，也可以不这么做，让其保持打开状态。
+Js代码  收藏代码
+
+    w.send();  
+
+ 
+
+你可能想测算在调用Send()函数之前，有多少数据备份在发送缓冲区中。bufferAmount属性表示已在WebSocket上发送但尚未写入网络的字节数。它对于调节发送速率很有用。
+Js代码  收藏代码
+
+    document.getElementById("sendButton").onclick = function() {  
+        if (w.bufferedAmount < bufferThreshold) {  
+            w.send(document.getElementById("inputMessage").value);  
+        }  
+    }  
+
+WebSocket API支持以二进制数据的形式发送Blob和ArrayBuffer实例
+Js代码  收藏代码
+
+    var a = new Uint8Array([8, 6, 7, 5, 3, 0, 9]);  
+    w.send(a.buffer);  
+
+ 
+
+三、例子
+
+书中介绍了一个用Python写的Echo服务，书中的代码可以在http://www.apress.com/9781430238645 的“Source Code/Downloads”中下载下载。
+
+对于JAVA开发人员Tomcat是最熟悉的，在Tomcat8中已经实现了WebSocket API 1.0。Tomcat7也会在不久实现（现在的实现不是WebSocket API 1.0）。
+
+在这里写一下在Tomcat8下执行的例子。
+
+例子由客户端页面和WebSocket服务程序组成，功能在Echo基础上增加一个服务端定时发送信息的功能。
+
+ 
+页面程序 ws.html代码  收藏代码
+
+    <!DOCTYPE html>  
+    <html>  
+    <head>  
+    <meta charset="UTF-8">  
+    <title>Test WebSocket</title>  
+    <script type="text/javascript">  
+        //显示信息  
+        var log = function(s) {  
+            if (document.readyState !== "complete") {  
+                log.buffer.push(s);  
+            } else {  
+                document.getElementById("output").textContent += (s + "\n");  
+                document.getElementById("outputdiv").scrollTop = document.getElementById("outputdiv").scrollHeight;  
+            }  
+        }  
+        log.buffer = [];  
+        //显示连接状态  
+        function setConnected(status) {  
+            document.getElementById("socketstatus").innerHTML = status;  
+        }  
+        var ws = null;  
+          
+        //连接  
+        function connect() {  
+            if (ws != null) {  
+                log("现已连接");  
+                return ;  
+            }  
+            url = "ws://localhost:8080/websocket/mywebsocket";  
+            if ('WebSocket' in window) {  
+                ws = new WebSocket(url);  
+            } else if ('MozWebSocket' in window) {  
+                ws = new MozWebSocket(url);  
+            } else {  
+                alert("您的浏览器不支持WebSocket。");  
+                return ;  
+            }  
+            ws.onopen = function() {  
+                log("open");  
+                setConnected("已连接");  
+                //设置发信息送类型为：ArrayBuffer  
+                ws.binaryType = "arraybuffer";  
+                  
+                //发送一个字符串和一个二进制信息  
+                ws.send("thank you for accepting this WebSocket request");  
+                var a = new Uint8Array([8, 6, 7, 5, 3, 0, 9]);  
+                ws.send(a.buffer);  
+            }  
+            ws.onmessage = function(e) {  
+                log(e.data.toString());  
+            }  
+            ws.onclose = function(e) {  
+                log("closed");  
+            }  
+            ws.onerror = function(e) {  
+                log("error");  
+            }  
+        }  
+          
+        //断开连接  
+        function disconnect() {  
+            if (ws != null) {  
+                ws.close();  
+                ws = null;  
+                setConnected("已断开");  
+            }  
+        }  
+          
+        window.onload = function() {  
+            connect();  
+            log(log.buffer.join("\n"));  
+            //发送页面上输入框的信息  
+            document.getElementById("sendButton").onclick = function() {  
+                if (ws != null) {  
+                    ws.send(document.getElementById("inputMessage").value);   
+                }  
+            }  
+            //停止心跳信息  
+            document.getElementById("stopButton").onclick = function() {  
+                if (ws != null) {  
+                    var a = new Uint8Array([1, 9, 2, 0, 1, 5, 1, 6]);  
+                    ws.send(a.buffer);   
+                }  
+            }  
+        }  
+    </script>  
+    </head>  
+    <body onunload="disconnect();">  
+        <div>连接状态：<span id="socketstatus"></span></div>  
+        <div>  
+            <input type="text" id="inputMessage" value="Hello, WebSocket!">  
+            <button id="sendButton">发送</button><button id="stopButton" style="margin-left:15px">停止心跳信息</button>  
+        </div>  
+        <div>  
+            <button id="connect" onclick="connect();">连接</button>  
+            <button id="disconnect" onclick="disconnect();">断开</button>  
+        </div>  
+        <div style="height:300px; overflow:auto;" id="outputdiv">  
+            <pre id="output"></pre>  
+        </div>  
+    </body>  
+    </html>  
+
+ 
+
+服务端程序用注解方式驱动
+
+ 
+Websocket服务端程序代码  收藏代码
+
+    package com.test.wsocket;  
+      
+    import java.io.IOException;  
+    import java.nio.ByteBuffer;  
+    import java.util.Random;  
+    import java.util.Timer;  
+    import java.util.TimerTask;  
+      
+    import javax.websocket.OnClose;  
+    import javax.websocket.OnMessage;  
+    import javax.websocket.OnOpen;  
+    import javax.websocket.PongMessage;  
+    import javax.websocket.Session;  
+    import javax.websocket.server.ServerEndpoint;  
+      
+    @ServerEndpoint("/mywebsocket")  
+    public class MyWebSocket {  
+          
+        private Session session;  
+        private static final Random random = new Random();  
+        private Timer timer = null;  
+        //停止信息信息指令  
+        private static final ByteBuffer stopbuffer  = ByteBuffer.wrap(new byte[]{1, 9, 2, 0, 1, 5, 1, 6});  
+          
+        /**  
+         * 打开连接时执行  
+         * @param session  
+         */  
+        @OnOpen  
+        public void start(Session session) {  
+            this.session = session;  
+            try {  
+                System.out.println("open");  
+                if (session.isOpen()) {  
+                    //设置心跳发送信息。每2秒发送一次信息。  
+                    timer = new Timer(true);  
+                    timer.schedule(task, 1000, 2000);  
+                }  
+            } catch (Exception e) {  
+                try {  
+                    session.close();  
+                } catch (IOException e1) {}  
+            }  
+        }  
+      
+        /**  
+         * 接收信息时执行  
+         * @param session  
+         * @param msg 字符串信息  
+         * @param last  
+         */  
+        @OnMessage  
+        public void echoTextMessage(Session session, String msg, boolean last) {  
+            try {  
+                if (session.isOpen()) {  
+                    System.out.println("string:" + msg);  
+                    session.getBasicRemote().sendText(msg, last);  
+                }  
+            } catch (IOException e) {  
+                try {  
+                    session.close();  
+                } catch (IOException e1) {  
+                    // Ignore  
+                }  
+            }  
+        }  
+      
+        /**  
+         * 接收信息时执行  
+         * @param session  
+         * @param bb 二进制数组  
+         * @param last  
+         */  
+        @OnMessage  
+        public void echoBinaryMessage(Session session, ByteBuffer bb, boolean last) {  
+            try {  
+                if (session.isOpen()) {  
+                    //如果是停止心跳指令，则停止心跳信息  
+                    if (bb.compareTo(stopbuffer) == 0) {  
+                        if (timer != null) {  
+                            timer.cancel();  
+                        }  
+                    } else {  
+                        session.getBasicRemote().sendBinary(bb, last);  
+                    }  
+                }  
+            } catch (IOException e) {  
+                try {  
+                    session.close();  
+                } catch (IOException e1) {  
+                    // Ignore  
+                }  
+            }  
+        }  
+          
+        /**  
+         * 接收pong指令时执行。  
+         *  
+         * @param pm    Ignored.  
+         */  
+        @OnMessage  
+        public void echoPongMessage(PongMessage pm) {  
+            // 无处理  
+        }  
+          
+        @OnClose  
+        public void end(Session session) {  
+            try {  
+                System.out.println("close");  
+                if (timer != null) {  
+                    timer.cancel();  
+                }  
+            } catch(Exception e) {  
+            }  
+        }  
+          
+        /*  
+         * 发送心跳信息  
+         */  
+        public void sendLong(long param) {  
+            try {  
+                if (session.isOpen()) {  
+                    this.session.getBasicRemote().sendText(String.valueOf(param));  
+                }  
+            } catch (IOException e) {  
+                try {  
+                    this.session.close();  
+                } catch (IOException e1) {}  
+            }  
+        }  
+          
+        /**  
+         * 心跳任务。发送随机数。  
+         */  
+        TimerTask task = new TimerTask() {  
+            public void run() {     
+                long param = random.nextInt(100);  
+                sendLong(param);  
+            }     
+        };  
+      
+    }  
+
+ 
+
+ 
+Web.xml代码  收藏代码
+
+    <?xml version="1.0" encoding="UTF-8"?>  
+    <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">  
+      <display-name>websocket</display-name>  
+      <welcome-file-list>  
+        <welcome-file>index.html</welcome-file>  
+      </welcome-file-list>  
+        
+      <filter>  
+            <filter-name>Set Character Encoding</filter-name>  
+            <filter-class>org.apache.catalina.filters.SetCharacterEncodingFilter</filter-class>  
+            <init-param>  
+                <param-name>encoding</param-name>  
+                <param-value>UTF-8</param-value>  
+            </init-param>  
+            <init-param>  
+                <param-name>ignore</param-name>  
+                <param-value>true</param-value>  
+            </init-param>  
+        </filter>  
+          
+        <filter-mapping>  
+            <filter-name>Set Character Encoding</filter-name>  
+            <url-pattern>/*</url-pattern>  
+        </filter-mapping>  
+    </web-app>  

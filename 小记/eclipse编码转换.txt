@@ -1,0 +1,16 @@
+将插件com.lifesting.tool.encoding_1.0.0.jar(百度网盘中有存)拷贝到eclipse/plugins目录下，重启Eclipse 或者 myeclipse。
+eclipse3.5以下，拷贝到plugins下，3.5以上拷贝到dropins文件夹下。
+重启eclipse或者myeclipse。
+
+选择项目，右键选择properties，然后点击Convert Setting进行转码规则设置，如下图：
+
+Suffix 文件后缀，FileEncoding 文件目前编码，Convert to 转换后的编码，Convert Char是否转换文件内容。
+
+转码
+
+在设置了转码规的项目上，右键选择项目，某几个文件夹或某几个文件(当然一个也可以)，然后点击Lifesting Tools->Set Encoding。插件将完成转码工作。如果我们选择的是项目，将转换整个项目；如果选择的是文件夹，转换文件夹下所有满足规则的文件；如果选择的是文件，只转换文件。
+
+
+等待其转换完成即可。
+
+http://blog.csdn.net/gotohailang/article/details/23933327

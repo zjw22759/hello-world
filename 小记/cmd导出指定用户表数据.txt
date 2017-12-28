@@ -1,0 +1,1 @@
+exp omds/omds@10.3.112.4/omds file=C:\TempFiles\sunds_data.dmp owner=omds

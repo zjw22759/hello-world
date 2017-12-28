@@ -1,0 +1,62 @@
+	1.
+	public static void sendPostThread(String url, String param) {
+		final String _url = url;
+		final String _param = param;
+		FutureTask<String> ft = new FutureTask<>(new Callable<String>() {
+			@Override
+			public String call()  {
+				try {
+					sendPost(_url,_param);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return "";
+			}
+		}); 
+	    new Thread(ft,"校验用户是否登入").start();  
+//	    result = ft.get();//可以拿到线程执行后的返回值（执行后的结果所以需要等待线程执行结束- - ）
+	}
+
+	2.
+       public static void sendPostThread(String url, String param) {
+		final String _url = url;
+		final String _param = param;
+		Test test = new Test();
+		FutureTask<String> ft = new FutureTask<>(test); 
+	    	new Thread(ft,"校验用户是否登入").start();  
+//	    	result = ft.get();//可以拿到线程执行后的返回值（执行后的结果所以需要等待线程执行结束- - ）
+	}
+	private static class Test implements Callable<String> {
+		@Override
+		public String call() {
+			String result;
+			try {
+				result = sendPost(httpUrl,httpMessage);
+				return result;
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				logger.info(e.getMessage());
+				return "";
+			}
+		}
+	}
+
+	3.无返回值（Runnable()接口） 有返回值callable接口          （单个线程中的异常信息是独立的- -）
+	public static void sendPostThread(String url, String param) throws Exception {
+		final String _url = url;
+		final String _param = param;
+		// 新开一个线程，执行http请求
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					HttpUtil.sendPost(_url, _param);
+				} catch (Exception e) {
+					logger.error("当前用户之前登录的服务器通讯异常：" + e.getMessage(), e);
+				}
+			}
+		}).start();
+	}
+	

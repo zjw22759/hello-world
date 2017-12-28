@@ -1,0 +1,37 @@
+editMode:'inline',      //行内编辑（如果有些行不可编辑，则在columns中配edit:false）
+inlineEditMult:true,    //允许多行编辑（操作不好控制）
+（局限性：只能修改表格里有的数据）
+
+$('#test_add_btn').click(function(){//编辑按钮
+		var all = $('#pz_test_tb').data('selectedTrs');
+		if (commonBlank(all)) {
+			BJUI.alertmsg('error','请勾选数据');
+		} else if (all.length == 1) {
+			a = all[0].rowIndex;
+			test_oldDate = $('#pz_test_tb').data("selectedDatas");//修改前数据
+			$('#pz_test_tb').datagrid('doEditRow',a);
+		} else {
+			BJUI.alertmsg('error','只支持单条修改');
+		}
+	})
+
+
+
+
+	$('#test_deletes_btn').click(function(){//保存按钮
+		var old = JSON.stringify(test_oldDate)
+		var old_data = aa.substring(1,old.length-1);;//取到修改前的数据
+		$('#pz_test_tb').datagrid('doSaveEditRow',a);
+		ar obj = $('#pz_test_tb').data("selectedDatas");
+		var msg = {}//执行后台操作
+		if (data.reCode == ) {
+			//成功操作
+			BJUI.alertmsg('ok','操作成功')	
+		} else {
+			$('#pz_test_tb').datagrid('updateRow',a,old_data );//更新回到修改前数据	
+ 		}
+		test_oldDate = "";
+	})
+
+
+editUrl: 'javascript/vouch/test/test.json',  不能配空，不然很多自带的方法失效。可以自行写一个json文件。当message值为空时，不会弹窗。（具体作用解释不了）

@@ -1,0 +1,5 @@
+E175002跟网络有关
+
+我报错的原因是因为eclipse有自动获取代理的功能
+
+因此去掉其代理就ok了 window-preferences-general-network connections，修改active-provider 为direct

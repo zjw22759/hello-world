@@ -1,0 +1,87 @@
+1.预编译模糊查询写法：
+stmt = con.prepareStatement(select serviceCode from smsconfiginfo where configName like '%?%')
+
+改成
+stmt = con.prepareStatement(select serviceCode from smsconfiginfo where configName like ?)
+stmt.setString(1,"%"+serviceNameKeyword+"%");
+
+
+2.两个div并排显示 <div style="float:left/right padding-left/ringt:40px">
+
+3.obj转int
+Integer.parseInt(obj.toString);
+ 如何将字串 String 转换成整数 int?
+A. 有两个方法:
+1). int i = Integer.parseInt([String]); 或
+i = Integer.parseInt([String],[int radix]);
+2). int i = Integer.valueOf(my_str).intValue();
+注: 字串转成 Double, Float, Long 的方法大同小异.
+2 如何将整数 int 转换成字串 String ?
+A. 有叁种方法:
+1.) String s = String.valueOf(i);
+2.) String s = Integer.toString(i);
+3.) String s = "" + i;
+注: Double, Float, Long 转成字串的方法大同小异.
+
+4.排错····首先先备份问题代码！首先先备份问题代码！首先先备份问题代码！
+              然后只保留报错部分测试查看问题  eg：js中掉不到定义的方法，看BUJUI主页中是否引用了该方法的js
+
+5.F：/PRO/1.jpg 中配maven中Global Setting是表示全局maven工程指定的仓库。 user Settings.xml中配置的是本工程的指定仓库。
+maven工程通过pom.xml添加依赖
+
+
+6.oracle sid即全局数据库名对应tnsnames.ora中的service_name 就是数据库实例 。数据库实例名下再建用户，eg：sys 等（现在sunbizdb中所有超级用户账号用户名都与超级用户名一致）  先建表空间，然后建用户，然后在用户中建表。
+
+
+数据库连接失败，可能是hosts文件中配的映射被360注释了！！！
+
+
+导出 - 导出用户对象 ：出来的是建表语句
+到处 - 表 ：建表语句+数据
+js 从前往后找，   css从最后属性开始找
+
+远程桌面 cmd -    mstsc
+
+开启telnet ftp等命令  控制面板-程序与功能-启用或关闭windows功能
+
+netstat -nao | findstr "端口号"  查看该端口号被哪些进程号占用
+tasklist | findstr "进程号"  查看该进程号对应的进程
+然后进入任务管理器找到对应进程看是否结束进程
+taskkill /pid 进程号 直接控制台关闭该进程
+
+
+JSON.stringify（）json转字符串    JSON.parse(）/$.toJSON()转回json (JSON.stringify（）与$.toJSON() 效果相同？？？)
+
+
+（3）日期类型的年月日加减后的格式化显示：
+
+/**
+ * dateFmt:%y-%M-%d
+ * 		   %y-%M-{%d+1}
+ * ex: new Date().formatDateTm('%y-%M-{%d-1}')
+ */
+Date.prototype.formatDateTm = function(dateFmt) {
+	... ...
+}
+
+formatDateTm 为BJUI封装的方法，日期类型直接调用即可，如获取前一天日期字符串：new Date().formatDateTm('%y-%M-{%d-1}')
+
+年月日均可加减指定数值，如 {%y-1} 、{%M-1} 、{%d-1} 分别表示 前一年、前一月、前一天
+
+
+ALTER TABLE bp_provider_tb DROP column current_time
+--删除   
+  alter   table   你的表   drop   constraint   主键名   
+  go   
+  --修改   
+  ALTER   TABLE   你的表   ALTER   COLUMN   列名   你的类型     
+  go   
+  --增加   
+  alter   table   你的表   add   constraint   主键名   primary   key   (列名)   
+  go
+
+ 判断类型  if (xx instanceof xx ){
+	}
+
+http://localhost:8080/SunAOS/login.html?userNo=admin&password=admin&menuId=111000
+http://localhost:8080/SunAOS/login.html?userNo=zjw&password=zjw!22759&menuId=111000

@@ -1,0 +1,36 @@
+开发中经常遇到从集合类List、Map中取出数据转换为String的问题，这里如果处理不好，经常会遇到空指针异常java.lang.NullPointerException，在此总结一下常用转换为String的方法，以及转换后如何对其进行判null使用的问题。
+Java中对象转换为String的常用方法： 
+方法1、String objStr = (String) obj：    强制类型转换，对象obj为null，结果也为null，但是obj必须保证其本质是String类型的值，即可转换的值。例如，不能强制转换 (String) 123
+方法2、String objStr = obj.toString方法    ：调用对象的toString方法，必须保证本类或者父类已经重写了Object类的toString方法，如果没有重写toString方法，将默认调用Object类的toString方法，返回getClass().getName() + '@' + Integer.toHexString(hashCode())，并不是obj的实际字符串表示，同时还必须保证对象obj不能为null，否者调用toString方法会报空指针异常java.lang.NullPointerException。
+方法3、String objStr = String.valueOf(obj) :    对象obj为null，转换结果为字符串"null"，否则，返回 obj.toString() 的值。注意，如果为obj为null，这里转换后的值已经是字符串的“null”，判空不能再用 obj == nulll，而应该用 str.equals("null")。
+ 
+已经知道obj为String类型的情况下，可以直接使用方法1转换为String，转换为String后判null条件为：if (objStr != null)
+慎用方法2
+对于不知道具体类型的情况下，可以使用方法3，只是转换后String的判null条件改为：if (!objStr.equals('null'))
+ 
+测试代码：
+
+ 
+复制代码
+
+public static void testStringNull() {
+    //String, toString, String.valueOf()
+    Object obj = null;
+    
+    String strByString = (String) obj;
+//        String strByToString = obj.toString();    //toString 必须保证不为null，否则java.lang.NullPointerException
+    String strByStringValueOf = String.valueOf(obj);
+    System.out.println("strByString="+strByString+", strByStringValueOf="+strByStringValueOf);
+    if (strByString == null ) {
+        System.out.println("strByString is null ");//执行
+    }
+    if (strByString != null &&  strByString.equals("null")) {
+        System.out.println("strByString is not null, is \"null\" ");//不执行
+    }
+    if (strByStringValueOf == null) {
+        System.out.println("strByStringValueOf is null ");//不执行
+    }
+    if (strByStringValueOf != null && strByStringValueOf.equals("null")) {
+        System.out.println("strByStringValueOf is not null, is \"null\" ");//执行
+    }
+}

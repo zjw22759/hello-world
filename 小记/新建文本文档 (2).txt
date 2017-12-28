@@ -1,0 +1,27 @@
+二分法：有序数组a[n]  2的num次》= n，num就是最大次数
+
+eg：递归实现
+	public static void main(String[] args) {
+		int[] a = new int[10000];
+		for (int i = 1; i <= a.length; i++) {
+			a[i-1] = i;
+		}
+		int b = 51;
+		System.out.println("比较次数 ： "+compare(b,a,0,1,a.length));
+	}
+
+	private static int compare(int b,int[] a,int num,int fir, int las) {
+		num++;
+		int mid = Math.round((a[fir - 1] + a[las - 1])/2);
+		System.out.println(a[mid - 1]);
+		if(a[b] == a[mid -1]) {
+			return num;
+		} else {
+			if(a[mid] > a[b]) {
+				las = mid;
+			} else {
+				fir = mid;
+			}
+			return compare(b,a,num,fir,las);
+		}
+	}
