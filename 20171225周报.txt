@@ -1,0 +1,4 @@
+翻写。1.map传bean时if判断时test里的值要不要bean.属性，对于判null和‘’
+      2.对于各个数据库写法不同的时候怎么办？比如merge into语句
+      	
+
